@@ -3,7 +3,7 @@ print.frboot <- function(x, ...){
     nbootdone <- x$n_boot-x$n_failed
     percsuc <- round(nbootdone/x$n_boot*100,2)
     
-    cat('\nBOOTSTRAPPED FUNCTIONAL RESPONSE FIT\n')
+    cat('BOOTSTRAPPED FUNCTIONAL RESPONSE FIT\n')
     cat(paste0('\nResponse:            ', x$response))
     cat(paste0('\nDescription:         ', as.character(frair_responses(show=FALSE)[[x$response]][2])))
     cat(paste0('\nOptimised variables: ', paste0(x$optimvars, collapse=', ')))
@@ -26,28 +26,28 @@ plot.frboot <- function(x, xlab=x$xvar, ylab=x$yvar, ...){
 }
 
 lines.frboot <- function(x, all_lines=FALSE, tozero=FALSE, bootcol=1, bootalpha=1/sqrt(x$n_boot), ...){
+    fitfun <- get(x$response, pos = "package:frair")
     if(tozero){
-        newx <- seq(from=0, to=max(x$x), by=1)
+        zero_answer <- fitfun(0, as.list(x$coefficients))
+        if(is.na(zero_answer)){
+            warning(c("The supplied function is undefined at zero.\n",
+                      "   Plotting to a minimum of 1e-04 instead."))
+            lowval <- 1e-04
+        } else {
+            lowval <- 0
+        }
+        newx <- seq(from=lowval, to=max(x$x), length.out = 50)
     } else {
-        newx <- seq(from=1, to=max(x$x), by=1)
+        newx <- seq(from=min(x$x), to=max(x$x), length.out = 50)
     }
-    fitfun <- get(x$response)
+    
     if(!all_lines){
         # Plot the mean (original) fit
         newy <- fitfun(newx, as.list(x$coefficients))
         lines(newx, newy, ...)
     } else {
         # Plotting bootlines
-        # Sort out colour
-        if(is.vector(bootcol) && match(length(bootcol),c(3,4),nomatch=0)){
-            # Assumed to be RGB
-            bootcol[4] <- bootalpha
-        } else {
-            # Assumed to be another colour spec.
-            bootcol <- col2rgb(bootcol, alpha=T)[,1]/255
-            bootcol[4] <- bootalpha
-        }
-        
+        bootcol <- adjustcolor(bootcol, alpha.f = bootalpha) # Sort out colour
         bootcoefs <- na.omit(x$bootcoefs)
         outdd <- matrix(ncol=length(newx), nrow=nrow(bootcoefs))
         # Draw the lines
@@ -55,7 +55,7 @@ lines.frboot <- function(x, all_lines=FALSE, tozero=FALSE, bootcol=1, bootalpha=
             outdd[a,] <- fitfun(newx, as.list(as.list(bootcoefs[a,])))
         }
         for(a in 1:nrow(outdd)){
-            lines(x=newx, y=outdd[a,], col=rgb(bootcol['red'], bootcol['green'], bootcol['blue'], bootcol['alpha']), ...)
+            lines(x=newx, y=outdd[a,], col=bootcol, ...)
         }
     }
 }
@@ -64,16 +64,24 @@ drawpoly <- function(x, upper, lower, ...) UseMethod("drawpoly")
 
 drawpoly.default <- function(x, upper, lower, ...){
     polygon(x=c(x, rev(x), x[1]), y=c(upper, rev(lower), upper[1]), ...)
-    # TODO, drawpoly should return this info invisibly?
+    # TODO: https://github.com/dpritchard/frair/issues/26
 }
 
 drawpoly.frboot <- function(x, ..., probs=c(0.025, 0.975), tozero=FALSE){
+    fitfun <- get(x$response, pos = "package:frair")
     if(tozero){
-        newx <- seq(from=0, to=max(x$x), by=1)
+        zero_answer <- fitfun(0, as.list(x$coefficients))
+        if(is.na(zero_answer)){
+            warning(c("The supplied function is undefined at zero.\n",
+                      "   Plotting to a minimum of 1e-04 instead."))
+            lowval <- 1e-04
+        } else {
+            lowval <- 0
+        }
+        newx <- seq(from=lowval, to=max(x$x), length.out = 50)
     } else {
-        newx <- seq(from=1, to=max(x$x), by=1)
+        newx <- seq(from=min(x$x), to=max(x$x), length.out = 50)
     }
-    fitfun <- get(x$response)
     bootcoefs <- na.omit(x$bootcoefs)
     outdd <- matrix(ncol=length(newx), nrow=nrow(bootcoefs))
     
@@ -119,7 +127,7 @@ confint.frboot <- function(object, parm='all', level=0.95, ..., citypes='all'){
         locvar <- which(names(object$fit$t0)==paste0(coefname, 'var'))
         type <- runlist[a,2]
         outcis[[coefname]][[type]] <- list()
-        bootciout <- fr_catchlist(boot.ci(object$fit, index=c(loc, locvar), conf=level, type=type))
+        bootciout <- fr_catchlist(boot::boot.ci(object$fit, index=c(loc, locvar), conf=level, type=type))
         # A warning or an error
         if(!is.null(bootciout$error)){
             outcis[[coefname]][[type]][['lower']] <- NA

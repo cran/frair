@@ -6,7 +6,7 @@
 # Y = Number of prey eaten / consumed / killed / absorbed
 
 ## Rogers Type II decreasing prey function ##
-# Same as ?lambertW
+# Same as ?emdbook::lambertW
 # Everything except 'X' should be provided.
 rogersII <- function(X, a, h, T) {
     if(is.list(a)){
@@ -15,7 +15,7 @@ rogersII <- function(X, a, h, T) {
         h <- coefs[['h']]
         T <- coefs[['T']]
     }
-    return(X - lambertW(a * h * X * exp(-a * (T - h * X)))/(a * h))
+    return(X - lamW::lambertW0(a * h * X * exp(-a * (T - h * X)))/(a * h))
 
 }
 # rogersII_fit: Does the heavy lifting
@@ -32,7 +32,7 @@ rogersII_fit <- function(data, samp, start, fixed, boot=FALSE, windows=FALSE) {
 	dat <- data[samp,]
 	out <- fr_setupout(start, fixed, samp)
 
-    try_rogersII <- try(mle2(rogersII_nll, start=start, fixed=fixed, data=list('X'=dat$X, 'Y'=dat$Y), 
+    try_rogersII <- try(bbmle::mle2(rogersII_nll, start=start, fixed=fixed, data=list('X'=dat$X, 'Y'=dat$Y), 
                              optimizer='optim', method='Nelder-Mead', control=list(maxit=5000)), 
                         silent=T) # Remove 'silent=T' for more verbose output
 	if (inherits(try_rogersII, "try-error")) {
@@ -64,7 +64,7 @@ rogersII_fit <- function(data, samp, start, fixed, boot=FALSE, windows=FALSE) {
  	}
 }	
 # rogersII_nll
-# Provides negative log-likelihood for estimations via mle2()
+# Provides negative log-likelihood for estimations via bbmle::mle2()
 # See Ben Bowkers book for more info
 rogersII_nll <- function(a, h, T, X, Y) {
     if (a <= 0 || h <= 0){return(NA)}
@@ -81,8 +81,8 @@ rogersII_nll <- function(a, h, T, X, Y) {
 # Models the difference between two groups (j) exposing a simple t-test on Da and Dh
 # For further info see Juliano 2001, pg 193, eg. eq. 10.11
 rogersII_diff <- function(X, grp, a, h, T, Da, Dh) {
-  # return(X - lambertW(a * h * X * exp(-a * (T - h * X)))/(a * h))
-    return(X - lambertW((a-Da*grp) * (h-Dh*grp) * X * exp(-(a-Da*grp) * (T - (h-Dh*grp) * X)))/((a-Da*grp) * (h-Dh*grp))) 
+  # return(X - lamW::lambertW0(a * h * X * exp(-a * (T - h * X)))/(a * h))
+    return(X - lamW::lambertW0((a-Da*grp) * (h-Dh*grp) * X * exp(-(a-Da*grp) * (T - (h-Dh*grp) * X)))/((a-Da*grp) * (h-Dh*grp))) 
 }
 # The NLL for the difference model... used by frair_compare()
 rogersII_nll_diff <- function(a, h, T, Da, Dh, X, Y, grp) {
