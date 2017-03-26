@@ -53,8 +53,15 @@ Daniel Pritchard
 \code{\link{frair_fit}}.
 }
 
+\note{
+Note that although Rogers (1972) is the most commonly cited reference for this equation, Royama (1971) described it one year earlier than Rogers and thus should also be given credit. 
+}
+
 \references{
 Bolker BM (2008) \emph{Ecological Models and Data in R}. Princeton University Press, Princeton, NJ.
+Rogers, D. (1972). Random search and insect population models. The Journal of Animal Ecology, 369-383.
+Royama, T. (1971). A comparative study of models for predation and parasitism. Researches on Population Ecology, 13, 1-91.
+
 }
 
 \examples{
@@ -65,10 +72,10 @@ celt <- gammarus[gammarus$spp=='G.d.celticus',]
 
 pulexfit <- frair_fit(eaten~density, data=pulex, 
                 response='rogersII', start=list(a = 1.2, h = 0.015), 
-                fixed=list(T=1))
+                fixed=list(T=40/24))
 celtfit <- frair_fit(eaten~density, data=celt, 
                 response='rogersII', start=list(a = 1.2, h = 0.015), 
-                fixed=list(T=1))
+                fixed=list(T=40/24))
 
 plot(c(0,30), c(0,30), type='n', xlab='Density', ylab='No. Eaten')
 points(pulexfit)

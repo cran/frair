@@ -90,11 +90,11 @@ data(gammarus)
 frair_responses() # See what is available
 # A typeII fit
 outII <- frair_fit(eaten~density, data=gammarus, response='rogersII', 
-        start=list(a = 1.2, h = 0.015), fixed=list(T=1))
+        start=list(a = 1.2, h = 0.015), fixed=list(T=40/24))
 
 # A linear fit
 outI <- frair_fit(eaten~density, data=gammarus, response='typeI', 
-        start=list(a=0.5), fixed=list(T=1))
+        start=list(a=0.5), fixed=list(T=40/24))
 
 # Visualise fits
 plot(outII, pch=20, col=rgb(0,0,0,0.2), xlim=c(0,30))
@@ -107,13 +107,60 @@ summary(outI$fit)
 # Compare models using AIC
 AIC(outI$fit,outII$fit)
 
+# Bythotrephes
+data("bythotrephes")
+# Fit several models and examine them using AIC. 
+b_flex <- frair_fit(eaten~density, data=bythotrephes, 
+                    response='flexpnr', 
+                    start=list(b = 1.2, q = 0, h = 0.015), 
+                    fixed=list(T=12/24))
+b_II <- frair_fit(eaten~density, data=bythotrephes, 
+                  response='flexpnr', 
+                  start=list(b = 1.2, h = 0.015), 
+                  fixed=list(T=12/24, q = 0))
+b_rogersII <- frair_fit(eaten~density, data=bythotrephes, 
+                  response='rogersII', 
+                  start=list(a = 1.2, h = 0.015), 
+                  fixed=list(T=12/24))
+AIC(b_flex$fit, b_II$fit, b_rogersII$fit)
+AICtab(b_flex$fit, b_II$fit, b_rogersII$fit)
+# b_II and b_rogersII are identical, by definition when q = 0
+# b_flex is strongly preferred (delta AIC = 16.9)
+
+# The role of T
+## Users need to be aware that changing T will change 
+## the units of fitted coefficients.  
+## For example, with the Gammarus dataset:
+g_T1 <- frair_fit(formula = eaten~density, data = gammarus, 
+                  response = "rogersII", 
+                  start = list(a = 2, h = 0.1), fixed = list(T = 1))
+g_Td <- frair_fit(formula = eaten~density, data = gammarus, 
+                  response = "rogersII", 
+                  start = list(a = 1, h = 0.1), fixed = list(T = 40/24))
+g_Th <- frair_fit(formula = eaten~density, data = gammarus, 
+                  response = "rogersII", 
+                  start = list(a = 0.05, h = 4), fixed = list(T = 40))
+diff_t <- round(rbind(coef(g_T1), coef(g_Td), coef(g_Th)), 2)
+row.names(diff_t) <- c("g_T1 (Experimental Time)", "g_Td (Days)", "g_Th (Hours)")
+print(diff_t)
+
 \dontrun{
-## Fitting curves outside of FRAIR (to diagnose problems)
+## Fitting curves outside of FRAIR
+# Many advanced users will not be satisfied with FRAIR current limitations.
+# To fit models outside FRAIR, you could proceed as follows:
+
 # Using mle2 or mle manually:
-manual_fit <- mle2(rogersII_nll, start=list(a = 1.2, h = 0.015), 
-        fixed=list(T=1), method='SANN', 
-        data=list('X'=gammarus$density, 'Y'=gammarus$eaten))
+strt <- list(a = 1.2, h = 0.015)
+fxd <- list(T=40/24)
+dat <- list('X'=gammarus$density, 'Y'=gammarus$eaten)
+manual_fit <- mle2(rogersII_nll, start=strt, fixed=fxd, 
+                   method='SANN', data=dat)
 # Note that the SANN method is *not* a general-purpose algorithm, 
-#   but it will return *something*
+# but it will return *something*, so might be helpful for finding starting values.
+
+# Controlling iterations, optimisers, etc... See ?mle2 and ?optim
+cntrl <- list(trace = 3, maxit = 1000)
+manual_fit_2 <- mle2(rogersII_nll, start=strt, fixed=fxd, 
+                     method='BFGS', data=dat, control=cntrl)
 }
 }
