@@ -40,7 +40,7 @@ None of these functions are designed to be called directly, though they are all 
 
 \code{hollingsII_fit} does the heavy lifting and also pulls double duty as the \code{statistic} function for bootstrapping (\emph{via} \code{boot()} in the boot package). The \code{windows} argument if required to prevent needless calls to \code{require(frair)} on platforms that can manage sane parallel processing.
 
-The core fitting is done by \code{\link{mle2}} from the \code{bbmle} package and users are directed there for more information. \code{mle2} uses the \code{rogersII_nll} function to optimise \code{rogersII}.
+The core fitting is done by \code{\link[bbmle]{mle2}} from the \code{bbmle} package and users are directed there for more information. \code{mle2} uses the \code{rogersII_nll} function to optimise \code{rogersII}.
 
 Further references and recommended reading can be found on the help page for \link{frair_fit}.
 }
@@ -66,7 +66,7 @@ Royama, T. (1971). A comparative study of models for predation and parasitism. R
 
 \examples{
 data(gammarus)
-
+\dontshow{RcppParallel::setThreadOptions(numThreads = 2)}
 pulex <- gammarus[gammarus$spp=='G.pulex',]
 celt <- gammarus[gammarus$spp=='G.d.celticus',]
 

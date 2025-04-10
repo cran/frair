@@ -1,3 +1,4 @@
+skip_on_cran() # Some test are running long and kicking up NOTEs
 library(frair)
 data("gammarus")
 context("Testing typeI")
@@ -28,8 +29,8 @@ test_that("we recover the mean slope of a typeI response", {
                     start=list(a=0.5), fixed=list(T=1))
     a1 <- coef(m1)['a']
     a2 <- coef(m2)['a']
-    expect_less_than(abs(a1-X1), X1*tol)
-    expect_less_than(abs(a2-X2), X2*tol)
+    expect_lt(abs(a1-X1), X1*tol)
+    expect_lt(abs(a2-X2), X2*tol)
 })
 
 test_that("different values for 'T' have the intended outcome", {
@@ -45,9 +46,9 @@ test_that("different values for 'T' have the intended outcome", {
     a3 <- coef(m3)['a']*2
     a4 <- coef(m4)['a']*0.5
     a5 <- coef(m5)['a']*48
-    expect_less_than(abs(a2-a3), a2*tol)
-    expect_less_than(abs(a2-a4), a2*tol)
-    expect_less_than(abs(a2-a5), a2*tol)
+    expect_lt(abs(a2-a3), a2*tol)
+    expect_lt(abs(a2-a4), a2*tol)
+    expect_lt(abs(a2-a5), a2*tol)
 })
 
 # With real data (albeit an inappropriate model for these data)

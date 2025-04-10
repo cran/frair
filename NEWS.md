@@ -1,4 +1,24 @@
-# FRAIR v.0.5.100
+# frair 0.5.203
+- Roll back expanded use of `\donttest{}` in favour of `setThreadOptions(numThreads = 2)`
+- Now imports `RcppParallel::setThreadOptions()`
+- Update typos in the help for `fr_flexp`. It used to use the `fr_flexpnr` model, which is not useful when trying to demonstrate the `fr_flexp` model. A comment in the examples also incorrectly stated that the "*The flexpnr model is not correct for the experimental design of the bythotrephes data*". It is actually the **fr_flexp** model that is inappropriate.
+
+# frair 0.5.202
+
+- Expand the scope of `\donttest{}`. This is likely due to some parallelism in external packages that is currently difficult (for FRAIR) to control.
+
+# frair 0.5.201
+
+- Wrap some examples in `\donttest{}` to speed up automated checks on CRAN. All examples are still there, but some do not run by default with `R CMD check` or `example()` (when `interactive()` returns FALSE)
+
+# frair 0.5.200
+
+- Update Rd cross-references to Rd package anchors, where relevant. 
+- Reformat NEWS.md, removing "v." in front of the version number. Should parse now.
+- Cleaned up deprecated functions in tests.
+- Tidy up URLs in README.md
+
+# frair 0.5.100
 
 - Messages are now dispatched via `message()` not via `cat()`.  This is the right thing to do.  
 - Speeling mistakes corrected, throughout (this will probably be an ongoing issue!).
@@ -11,7 +31,7 @@
 - Update the rogers_II help page
 	- Note that Royama (1971) described the Rogers equation first.
 
-# FRAIR v.0.5
+# frair 0.5
 
 ## Important user-facing changes
 - Changes to the Beddington-DeAngelis Type-II model 
@@ -30,7 +50,7 @@
     
 ## Minor user-facing changes
 - New `Bythotrephes` Data
-	- We have (re)introduced the `bythotrephes` dataset. It describes *Bythotrephes* spp. (water fleas) preying on prey items of different sizes.
+	- We have (re)introduced the `bythotrephes` dataset. It describes *Bythotrephes- spp. (water fleas) preying on prey items of different sizes.
 - Minor changes to `print.frboot` removing an unnecessary extra line break. Yep. Big stuff! 
 - When the `tozero` argument of `lines.frfit`, `lines.frboot` and `drawpoly.frboot` are TRUE, these functions try to plot to zero. If that results in an undefined value for the fitted response, then it draws to 1e-04 instead and a warning is thrown. Note this does not guarantee all bootstrapped fits will be defined at this value either. 
 
@@ -43,4 +63,4 @@
 - Tests! Finally.  
 
 ## Temporary changes
-- The call to `boot` **does not** use `::`.  The reason is that in the (fairly likely) scenario that users go digging into the structure of the frboot objects and call `obj$fit` directly, the `boot::boot` in the call confuses `print.boot` and it reports some pretty crazy stuff! 
+- The call to `boot` **does not*- use `::`.  The reason is that in the (fairly likely) scenario that users go digging into the structure of the frboot objects and call `obj$fit` directly, the `boot::boot` in the call confuses `print.boot` and it reports some pretty crazy stuff! 

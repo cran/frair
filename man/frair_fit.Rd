@@ -86,7 +86,7 @@ Daniel Pritchard
 
 \examples{
 data(gammarus)
-
+\dontshow{RcppParallel::setThreadOptions(numThreads = 2)}
 frair_responses() # See what is available
 # A typeII fit
 outII <- frair_fit(eaten~density, data=gammarus, response='rogersII', 

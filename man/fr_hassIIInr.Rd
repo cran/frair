@@ -36,7 +36,7 @@ None of these functions are designed to be called directly, though they are all 
 
 \code{hassIIInr_fit} does the heavy lifting and also pulls double duty as the \code{statistic} function for bootstrapping (\emph{via} \code{boot()} in the boot package). The \code{windows} argument if required to prevent needless calls to \code{require(frair)} on platforms that can manage sane parallel processing.
 
-The core fitting is done by \code{\link{mle2}} from the \code{bbmle} package and users are directed there for more information. \code{mle2} uses the \code{hassIIInr_nll} function to optimise \code{hassIIInr}.
+The core fitting is done by \code{\link[bbmle]{mle2}} from the \code{bbmle} package and users are directed there for more information. \code{mle2} uses the \code{hassIIInr_nll} function to optimise \code{hassIIInr}.
 
 Further references and recommended reading can be found on the help page for \link{frair_fit}.
 }
@@ -66,7 +66,7 @@ daty2 <- round(hassIIInr(X=datx,
             h=0.1*rnorm(length(datx), mean=1, sd=0.1), 
             T=1),0)
 dat <- data.frame(datx,daty1,daty2)
-
+\dontshow{RcppParallel::setThreadOptions(numThreads = 2)}
 hassIIInr_1 <- frair_fit(daty1~datx, data=dat, response='hassIIInr', 
         start=list(b=0.05, c=0.1, h=0.1), fixed=list(T=1))
 hassIIInr_2 <- frair_fit(daty2~datx, data=dat, response='hassIIInr', 
